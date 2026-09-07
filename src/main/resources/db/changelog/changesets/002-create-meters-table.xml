@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
+
+    <changeSet id="002-create-meters-table" author="smartmonitoring">
+
+        <createTable tableName="meters" remarks="Smart meters installed in each flat, linked to a DCU">
+
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true" primaryKeyName="pk_meters" nullable="false"/>
+            </column>
+
+            <!-- Physical meter identifier as sent by the DCU (e.g. MTR-001) -->
+            <column name="meter_number" type="VARCHAR(100)" remarks="Unique physical meter ID from DCU">
+                <constraints nullable="false" unique="true" uniqueConstraintName="uq_meters_meter_number"/>
+            </column>
+
+            <!-- Which DCU this meter belongs to (e.g. DCU-A1) -->
+            <column name="dcu_id" type="VARCHAR(100)" remarks="DCU device identifier this meter is connected to">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="flat_number" type="VARCHAR(50)" remarks="Flat or unit where this meter is installed">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="status" type="VARCHAR(20)" defaultValue="ACTIVE" remarks="ACTIVE, INACTIVE, or FAULTY">
+                <constraints nullable="false"/>
+            </column>
+
+            <!-- FK to users — nullable, meter can exist before a resident is assigned -->
+            <column name="user_id" type="BIGINT" remarks="Resident user this meter belongs to"/>
+
+            <column name="installed_at" type="TIMESTAMP WITHOUT TIME ZONE"
+                    remarks="When the meter was physically installed"/>
+
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE" defaultValueComputed="NOW()">
+                <constraints nullable="false"/>
+            </column>
+
+        </createTable>
+
+        <!-- FK: meter → user (nullable — meter exists before user is assigned) -->
+        <addForeignKeyConstraint
+                baseTableName="meters"
+                baseColumnNames="user_id"
+                constraintName="fk_meters_user"
+                referencedTableName="users"
+                referencedColumnNames="id"
+                onDelete="SET NULL"/>
+
+        <!-- Fast lookup by DCU (common query — get all meters for a DCU) -->
+        <createIndex tableName="meters" indexName="idx_meters_dcu_id">
+            <column name="dcu_id"/>
+        </createIndex>
+
+        <!-- Fast lookup by user -->
+        <createIndex tableName="meters" indexName="idx_meters_user_id">
+            <column name="user_id"/>
+        </createIndex>
+
+        <!-- Enforce status values at DB level -->
+        <sql>
+            ALTER TABLE meters
+                ADD CONSTRAINT chk_meters_status CHECK (status IN ('ACTIVE', 'INACTIVE', 'FAULTY'));
+        </sql>
+
+    </changeSet>
+
+</databaseChangeLog>

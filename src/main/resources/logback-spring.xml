@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <!-- ── Patterns ─────────────────────────────────────────────────────── -->
+    <property name="LOG_PATTERN" value="%d{HH:mm:ss} [%level] %logger{20} - %msg%n"/>
+    <property name="LOG_DIR"     value="logs"/>
+    <property name="LOG_FILE"    value="${LOG_DIR}/smart-monitoring.log"/>
+
+    <!-- ── Console ──────────────────────────────────────────────────────── -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- ── Rolling file ─────────────────────────────────────────────────── -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_FILE}</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- Daily rollover, keep 7 days -->
+            <fileNamePattern>${LOG_DIR}/smart-monitoring.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>7</maxHistory>
+            <totalSizeCap>50MB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- ── Silence noisy Spring/Hibernate internals ──────────────────────── -->
+    <logger name="org.springframework"          level="WARN"/>
+    <logger name="org.hibernate"                level="WARN"/>
+    <logger name="com.zaxxer.hikari"            level="WARN"/>
+    <logger name="liquibase"                    level="WARN"/>
+    <logger name="org.springframework.integration" level="WARN"/>
+    <logger name="org.eclipse.paho"             level="WARN"/>
+
+    <!-- ── Application — INFO in prod, DEBUG for local troubleshooting ───── -->
+    <logger name="org.smarttech" level="INFO" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+    </logger>
+
+    <!-- ── Root fallback ────────────────────────────────────────────────── -->
+    <root level="WARN">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+    </root>
+
+</configuration>

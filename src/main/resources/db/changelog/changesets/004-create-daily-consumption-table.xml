@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
+
+    <changeSet id="004-create-daily-consumption-table" author="smartmonitoring">
+
+        <!--
+            Pre-aggregated daily consumption per meter.
+            Populated by the DailyConsumptionAggregator scheduler (runs every hour).
+            One row per meter per day — unique constraint enforces this.
+            This is what powers the daily/weekly chart APIs.
+        -->
+        <createTable tableName="daily_consumption"
+                     remarks="Pre-aggregated daily kWh consumption per meter, built from meter_readings">
+
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true" primaryKeyName="pk_daily_consumption" nullable="false"/>
+            </column>
+
+            <column name="meter_id" type="BIGINT" remarks="FK to meters table">
+                <constraints nullable="false"/>
+            </column>
+
+            <!-- One record per calendar day -->
+            <column name="date" type="DATE" remarks="Calendar date this aggregation covers">
+                <constraints nullable="false"/>
+            </column>
+
+            <!--
+                Delta kWh for the day: last_reading.kwh_value - first_reading.kwh_value.
+                NUMERIC(10,4) — large enough for any single-day consumption.
+            -->
+            <column name="units_consumed" type="NUMERIC(10,4)"
+                    remarks="kWh consumed on this day (last reading minus first reading)">
+                <constraints nullable="false"/>
+            </column>
+
+            <!-- Tracks when the aggregator last wrote this row (helpful for debugging) -->
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"
+                    defaultValueComputed="NOW()"
+                    remarks="Last time the aggregator updated this row">
+                <constraints nullable="false"/>
+            </column>
+
+        </createTable>
+
+        <!-- FK: daily_consumption → meter -->
+        <addForeignKeyConstraint
+                baseTableName="daily_consumption"
+                baseColumnNames="meter_id"
+                constraintName="fk_daily_consumption_meter"
+                referencedTableName="meters"
+                referencedColumnNames="id"
+                onDelete="CASCADE"/>
+
+        <!--
+            Unique constraint: one row per meter per day.
+            The aggregator uses upsert logic based on this.
+        -->
+        <addUniqueConstraint
+                tableName="daily_consumption"
+                columnNames="meter_id, date"
+                constraintName="uq_daily_consumption_meter_date"/>
+
+        <!--
+            Composite index on (meter_id, date) — the primary query pattern
+            for fetching a date range for one meter.
+        -->
+        <createIndex tableName="daily_consumption"
+                     indexName="idx_daily_consumption_meter_date">
+            <column name="meter_id"/>
+            <column name="date"/>
+        </createIndex>
+
+        <!-- Guard: consumption can't be negative -->
+        <sql>
+            ALTER TABLE daily_consumption
+                ADD CONSTRAINT chk_daily_consumption_positive CHECK (units_consumed >= 0);
+        </sql>
+
+    </changeSet>
+
+</databaseChangeLog>

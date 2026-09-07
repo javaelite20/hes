@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
+
+    <!-- Each changeset file is included in execution order -->
+    <include file="db/changelog/changesets/001-create-users-table.xml"/>
+    <include file="db/changelog/changesets/002-create-meters-table.xml"/>
+    <include file="db/changelog/changesets/003-create-meter-readings-table.xml"/>
+    <include file="db/changelog/changesets/004-create-daily-consumption-table.xml"/>
+    <include file="db/changelog/changesets/005-alter-users-add-login-id.xml"/>
+
+</databaseChangeLog>

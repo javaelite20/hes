@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
+
+    <changeSet id="001-create-users-table" author="smartmonitoring">
+
+        <createTable tableName="users" remarks="Application users — residents and admins">
+
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true" primaryKeyName="pk_users" nullable="false"/>
+            </column>
+
+            <column name="email" type="VARCHAR(255)" remarks="Unique login email">
+                <constraints nullable="false" unique="true" uniqueConstraintName="uq_users_email"/>
+            </column>
+
+            <column name="password" type="VARCHAR(255)" remarks="BCrypt hashed password">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="name" type="VARCHAR(255)" remarks="Full name of the user">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="phone_number" type="VARCHAR(20)" remarks="Contact number"/>
+
+            <column name="role" type="VARCHAR(20)" remarks="RESIDENT or ADMIN">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="flat_number" type="VARCHAR(50)" remarks="Flat or unit identifier in the society"/>
+
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE" defaultValueComputed="NOW()">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE" defaultValueComputed="NOW()">
+                <constraints nullable="false"/>
+            </column>
+
+        </createTable>
+
+        <!-- Index on email for fast lookup during login -->
+        <createIndex tableName="users" indexName="idx_users_email">
+            <column name="email"/>
+        </createIndex>
+
+        <!-- Enforce role values at DB level -->
+        <sql>
+            ALTER TABLE users
+                ADD CONSTRAINT chk_users_role CHECK (role IN ('RESIDENT', 'ADMIN'));
+        </sql>
+
+    </changeSet>
+
+</databaseChangeLog>

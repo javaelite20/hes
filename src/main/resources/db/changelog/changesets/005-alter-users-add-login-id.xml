@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
+
+    <changeSet id="005-alter-users-add-login-id" author="smartmonitoring">
+
+        <!-- Add login_id column — initially nullable to allow migration of existing rows -->
+        <addColumn tableName="users">
+            <column name="login_id" type="VARCHAR(100)"
+                    remarks="Unique login identifier. Residents: towerNumber_flatNumber. Admins: email."/>
+        </addColumn>
+
+        <!-- Add tower_number column -->
+        <addColumn tableName="users">
+            <column name="tower_number" type="VARCHAR(50)"
+                    remarks="Tower/block identifier for residents (e.g. 01, A, B)"/>
+        </addColumn>
+
+        <!-- Backfill login_id for existing rows using email as fallback -->
+        <sql>
+            UPDATE users SET login_id = email WHERE login_id IS NULL;
+        </sql>
+
+        <!-- Now make it NOT NULL and UNIQUE -->
+        <addNotNullConstraint tableName="users" columnName="login_id" columnDataType="VARCHAR(100)"/>
+
+        <addUniqueConstraint
+                tableName="users"
+                columnNames="login_id"
+                constraintName="uq_users_login_id"/>
+
+        <!-- email column is now optional — remove NOT NULL constraint -->
+        <dropNotNullConstraint tableName="users" columnName="email" columnDataType="VARCHAR(255)"/>
+
+        <!-- Index on login_id for fast auth lookups -->
+        <createIndex tableName="users" indexName="idx_users_login_id">
+            <column name="login_id"/>
+        </createIndex>
+
+    </changeSet>
+
+</databaseChangeLog>

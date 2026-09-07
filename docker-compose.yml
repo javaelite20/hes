@@ -1,0 +1,76 @@
+services:
+
+  # ── PostgreSQL ──────────────────────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: sm-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB:       smart_monitoring
+      POSTGRES_USER:     ${DB_USERNAME:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Mosquitto MQTT Broker (used when DCU_INTEGRATION_MODE=MQTT) ─────────────
+  mosquitto:
+    image: eclipse-mosquitto:2
+    container_name: sm-mosquitto
+    restart: unless-stopped
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+    profiles:
+      - mqtt   # only starts when: docker compose --profile mqtt up
+
+  # ── Spring Boot Backend ─────────────────────────────────────────────────────
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sm-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_USERNAME:            ${DB_USERNAME:-postgres}
+      DB_PASSWORD:            ${DB_PASSWORD:-postgres}
+      SPRING_DATASOURCE_URL:  jdbc:postgresql://postgres:5432/smart_monitoring
+      JWT_SECRET:             ${JWT_SECRET:-404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
+      DCU_INTEGRATION_MODE:   ${DCU_INTEGRATION_MODE:-REST}
+      MQTT_BROKER_URL:        ${MQTT_BROKER_URL:-tcp://mosquitto:1883}
+      CORS_ALLOWED_ORIGINS:   http://localhost:3000
+    ports:
+      - "8080:8080"
+    volumes:
+      - backend_logs:/app/logs
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ── React Frontend ──────────────────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./smart-monitoring-ui
+      dockerfile: Dockerfile
+    container_name: sm-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"
+
+volumes:
+  postgres_data:
+  backend_logs:

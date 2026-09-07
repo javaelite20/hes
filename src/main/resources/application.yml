@@ -1,0 +1,76 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: SmartMonitoring
+
+  datasource:
+    url: jdbc:postgresql://localhost:5433/smart_monitoring
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:password}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      pool-name: SmartMonitoringPool
+      maximum-pool-size: 10        # max concurrent DB connections
+      minimum-idle: 2              # keep 2 warm connections at all times
+      connection-timeout: 20000    # fail fast if no connection in 20s
+      idle-timeout: 300000         # drop idle connections after 5 min
+      max-lifetime: 1200000        # recycle connections after 20 min
+      connection-test-query: SELECT 1  # validate connection before use
+
+  jpa:
+    hibernate:
+      ddl-auto: none        # schema is fully managed by Liquibase
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml
+    enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+
+mqtt:
+  broker-url: ${MQTT_BROKER_URL:tcp://localhost:1883}
+  client-id: smart-monitoring-server
+  username: ${MQTT_USERNAME:}
+  password: ${MQTT_PASSWORD:}
+  topic:
+    meter-reading: dcu/+/meter/+/reading   # dcu/{dcuId}/meter/{meterId}/reading
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
+    expiration-ms: 86400000  # 24 hours
+
+  dcu:
+    # Integration mode: REST (MVP) or MQTT (production)
+    # REST  → DCU pushes readings to POST /api/v1/dcu/readings
+    # MQTT  → readings are ingested via the MQTT broker subscription
+    integration-mode: ${DCU_INTEGRATION_MODE:REST}
+
+  cors:
+    # Comma-separated list of allowed origins
+    # Local dev:  http://localhost:3000
+    # Production: https://app.yourdomain.com
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000}
+
+  retention:
+    # How many days to keep raw meter_readings (high-volume table)
+    # Readings are only deleted if daily_consumption exists for that day
+    raw-readings-days: ${RETENTION_RAW_READINGS_DAYS:90}
+
+    # How many days to keep daily_consumption (aggregated, low-volume)
+    # 1095 = 3 years
+    daily-consumption-days: ${RETENTION_DAILY_CONSUMPTION_DAYS:1095}

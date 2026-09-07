@@ -1,0 +1,644 @@
+{
+  "info": {
+    "name": "SmartMonitoring API",
+    "description": "Complete API collection for the SmartMonitoring backend. \n\n**Quick Start:**\n1. Run 'Admin Login' or 'Resident Login' — the token is auto-saved to a collection variable.\n2. All subsequent requests use that token automatically via the collection-level auth.\n3. Switch between admin/resident by running the respective login request.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{authToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "authToken",
+      "value": "",
+      "type": "string",
+      "description": "Auto-populated after running any login request"
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "description": "Registration and login. Tokens are auto-saved to {{authToken}} after login.",
+      "item": [
+        {
+          "name": "Register Resident",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const json = pm.response.json();",
+                  "    pm.collectionVariables.set('authToken', json.token);",
+                  "    console.log('Token saved for:', json.email, '| Role:', json.role);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Ramesh Kumar\",\n  \"email\": \"ramesh@example.com\",\n  \"password\": \"password123\",\n  \"phoneNumber\": \"9876543210\",\n  \"flatNumber\": \"A-101\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            },
+            "description": "Self-registration — always creates a RESIDENT. Token is auto-saved to {{authToken}}."
+          },
+          "response": [
+            {
+              "name": "201 Created",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"token\": \"eyJhbGciOiJIUzI1NiJ9...\",\n  \"email\": \"ramesh@example.com\",\n  \"name\": \"Ramesh Kumar\",\n  \"role\": \"RESIDENT\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Admin Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const json = pm.response.json();",
+                  "    pm.collectionVariables.set('authToken', json.token);",
+                  "    console.log('Admin token saved for:', json.email);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@society.com\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Login as admin. Token is auto-saved to {{authToken}}.\n\nAdmin must be seeded directly in DB — no public admin registration endpoint.\n\nSeed SQL:\nINSERT INTO users (email, password, name, role, flat_number, created_at, updated_at)\nVALUES ('admin@society.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhe2', 'Society Admin', 'ADMIN', 'OFFICE', NOW(), NOW());"
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"token\": \"eyJhbGciOiJIUzI1NiJ9...\",\n  \"email\": \"admin@society.com\",\n  \"name\": \"Society Admin\",\n  \"role\": \"ADMIN\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Resident Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const json = pm.response.json();",
+                  "    pm.collectionVariables.set('authToken', json.token);",
+                  "    console.log('Resident token saved for:', json.email);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"ramesh@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Login as resident. Token is auto-saved to {{authToken}}."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"token\": \"eyJhbGciOiJIUzI1NiJ9...\",\n  \"email\": \"ramesh@example.com\",\n  \"name\": \"Ramesh Kumar\",\n  \"role\": \"RESIDENT\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Meters — Admin",
+      "description": "Meter management endpoints. Requires ADMIN token.\n\nRun 'Admin Login' first to populate {{authToken}}.",
+      "item": [
+        {
+          "name": "Create Meter",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const json = pm.response.json();",
+                  "    pm.collectionVariables.set('meterId', json.id);",
+                  "    console.log('Meter ID saved:', json.id, '| Number:', json.meterNumber);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"meterNumber\": \"MTR-001\",\n  \"dcuId\": \"DCU-A1\",\n  \"flatNumber\": \"A-101\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/meters",
+              "host": ["{{baseUrl}}"],
+              "path": ["meters"]
+            },
+            "description": "Register a new physical meter. `userId` is optional — meter can be created before a resident registers.\n\nThe `meterNumber` must match exactly what the DCU will send in reading payloads.\n\nRequires: ADMIN token"
+          },
+          "response": [
+            {
+              "name": "201 Created",
+              "status": "Created",
+              "code": 201,
+              "body": "{\n  \"id\": 1,\n  \"meterNumber\": \"MTR-001\",\n  \"dcuId\": \"DCU-A1\",\n  \"flatNumber\": \"A-101\",\n  \"status\": \"ACTIVE\",\n  \"userId\": null,\n  \"userName\": null,\n  \"installedAt\": \"2024-05-01T10:00:00\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Create Meter (with User assigned)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"meterNumber\": \"MTR-002\",\n  \"dcuId\": \"DCU-A1\",\n  \"flatNumber\": \"A-102\",\n  \"userId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/meters",
+              "host": ["{{baseUrl}}"],
+              "path": ["meters"]
+            },
+            "description": "Create a meter and immediately assign it to an existing user.\n\nRequires: ADMIN token"
+          }
+        },
+        {
+          "name": "List All Meters",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/meters",
+              "host": ["{{baseUrl}}"],
+              "path": ["meters"]
+            },
+            "description": "Returns all meters in the society with assignment status.\n\nRequires: ADMIN token"
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "body": "[\n  {\n    \"id\": 1,\n    \"meterNumber\": \"MTR-001\",\n    \"dcuId\": \"DCU-A1\",\n    \"flatNumber\": \"A-101\",\n    \"status\": \"ACTIVE\",\n    \"userId\": 2,\n    \"userName\": \"Ramesh Kumar\",\n    \"installedAt\": \"2024-05-01T10:00:00\"\n  },\n  {\n    \"id\": 2,\n    \"meterNumber\": \"MTR-002\",\n    \"dcuId\": \"DCU-A1\",\n    \"flatNumber\": \"A-102\",\n    \"status\": \"ACTIVE\",\n    \"userId\": null,\n    \"userName\": null,\n    \"installedAt\": \"2024-05-01T10:00:00\"\n  }\n]"
+            }
+          ]
+        },
+        {
+          "name": "Assign Meter to User",
+          "request": {
+            "method": "PATCH",
+            "url": {
+              "raw": "{{baseUrl}}/meters/1/assign/2",
+              "host": ["{{baseUrl}}"],
+              "path": ["meters", "1", "assign", "2"]
+            },
+            "description": "Link an existing meter to a resident user.\n\nPath: /meters/{meterId}/assign/{userId}\n\nUse this when a resident registers after the meter was already created.\n\nRequires: ADMIN token"
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"id\": 1,\n  \"meterNumber\": \"MTR-001\",\n  \"dcuId\": \"DCU-A1\",\n  \"flatNumber\": \"A-101\",\n  \"status\": \"ACTIVE\",\n  \"userId\": 2,\n  \"userName\": \"Ramesh Kumar\",\n  \"installedAt\": \"2024-05-01T10:00:00\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Meters — Resident",
+      "description": "Meter info for the logged-in resident. Requires RESIDENT token.\n\nRun 'Resident Login' first.",
+      "item": [
+        {
+          "name": "Get My Meter",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/meters/my",
+              "host": ["{{baseUrl}}"],
+              "path": ["meters", "my"]
+            },
+            "description": "Returns the meter assigned to the currently logged-in resident.\n\nRequires: RESIDENT token"
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"id\": 1,\n  \"meterNumber\": \"MTR-001\",\n  \"dcuId\": \"DCU-A1\",\n  \"flatNumber\": \"A-101\",\n  \"status\": \"ACTIVE\",\n  \"userId\": 2,\n  \"userName\": \"Ramesh Kumar\",\n  \"installedAt\": \"2024-05-01T10:00:00\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Analytics — Resident",
+      "description": "Power consumption analytics for the logged-in resident.\n\nRun 'Resident Login' first to populate {{authToken}}.",
+      "item": [
+        {
+          "name": "Get Real-Time Reading",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/analytics/my/realtime",
+              "host": ["{{baseUrl}}"],
+              "path": ["analytics", "my", "realtime"]
+            },
+            "description": "Returns the most recent meter reading — current kWh odometer value and instantaneous load in watts.\n\nRequires: RESIDENT token"
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"meterNumber\": \"MTR-001\",\n  \"flatNumber\": \"A-101\",\n  \"kwhValue\": 1234.5678,\n  \"instantPowerWatts\": 450.00,\n  \"recordedAt\": \"2024-05-01T10:30:00\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Daily Consumption (last 7 days)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/analytics/my/daily",
+              "host": ["{{baseUrl}}"],
+              "path": ["analytics", "my", "daily"]
+            },
+            "description": "Returns daily consumption breakdown. Without query params, defaults to last 7 days.\n\nRequires: RESIDENT token"
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"meterNumber\": \"MTR-001\",\n  \"flatNumber\": \"A-101\",\n  \"from\": \"2024-04-25\",\n  \"to\": \"2024-05-01\",\n  \"totalUnitsConsumed\": 42.3500,\n  \"dailyBreakdown\": [\n    { \"date\": \"2024-04-25\", \"unitsConsumed\": 5.8200 },\n    { \"date\": \"2024-04-26\", \"unitsConsumed\": 6.1000 },\n    { \"date\": \"2024-04-27\", \"unitsConsumed\": 7.2500 },\n    { \"date\": \"2024-04-28\", \"unitsConsumed\": 4.9800 },\n    { \"date\": \"2024-04-29\", \"unitsConsumed\": 6.4500 },\n    { \"date\": \"2024-04-30\", \"unitsConsumed\": 5.7500 },\n    { \"date\": \"2024-05-01\", \"unitsConsumed\": 6.0000 }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Daily Consumption (custom range)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/analytics/my/daily?from=2024-05-01&to=2024-05-31",
+              "host": ["{{baseUrl}}"],
+              "path": ["analytics", "my", "daily"],
+              "query": [
+                {
+                  "key": "from",
+                  "value": "2024-05-01",
+                  "description": "Start date (YYYY-MM-DD)"
+                },
+                {
+                  "key": "to",
+                  "value": "2024-05-31",
+                  "description": "End date (YYYY-MM-DD)"
+                }
+              ]
+            },
+            "description": "Daily consumption for a custom date range — useful for monthly view.\n\nRequires: RESIDENT token"
+          }
+        },
+        {
+          "name": "Get Weekly Consumption",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/analytics/my/weekly",
+              "host": ["{{baseUrl}}"],
+              "path": ["analytics", "my", "weekly"]
+            },
+            "description": "Convenience alias — always returns the last 7 days. Same response shape as /daily.\n\nRequires: RESIDENT token"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Analytics — Admin",
+      "description": "Admin can query analytics for any meter by its ID.\n\nRun 'Admin Login' first.",
+      "item": [
+        {
+          "name": "Get Real-Time Reading (by meter ID)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/analytics/meters/1/realtime",
+              "host": ["{{baseUrl}}"],
+              "path": ["analytics", "meters", "1", "realtime"]
+            },
+            "description": "Real-time reading for any meter by its database ID.\n\nRequires: ADMIN token"
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"meterNumber\": \"MTR-001\",\n  \"flatNumber\": \"A-101\",\n  \"kwhValue\": 1234.5678,\n  \"instantPowerWatts\": 450.00,\n  \"recordedAt\": \"2024-05-01T10:30:00\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Daily Consumption (by meter ID, last 7 days)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/analytics/meters/1/daily",
+              "host": ["{{baseUrl}}"],
+              "path": ["analytics", "meters", "1", "daily"]
+            },
+            "description": "Daily consumption for any meter, defaults to last 7 days.\n\nRequires: ADMIN token"
+          }
+        },
+        {
+          "name": "Get Daily Consumption (by meter ID, custom range)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/analytics/meters/1/daily?from=2024-05-01&to=2024-05-31",
+              "host": ["{{baseUrl}}"],
+              "path": ["analytics", "meters", "1", "daily"],
+              "query": [
+                {
+                  "key": "from",
+                  "value": "2024-05-01",
+                  "description": "Start date (YYYY-MM-DD)"
+                },
+                {
+                  "key": "to",
+                  "value": "2024-05-31",
+                  "description": "End date (YYYY-MM-DD)"
+                }
+              ]
+            },
+            "description": "Daily consumption for any meter over a custom date range.\n\nRequires: ADMIN token"
+          }
+        }
+      ]
+    },
+    {
+      "name": "DCU Ingestion (REST mode)",
+      "description": "Endpoints for the DCU device to push meter readings.\n\nActive only when app.dcu.integration-mode=REST (default).\nNo JWT required — these are called by the DCU device, not by users.",
+      "item": [
+        {
+          "name": "Push Single Reading",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"meter_number\": \"MTR-001\",\n  \"kwh_value\": 1234.5678,\n  \"instant_power_watts\": 450.0,\n  \"recorded_at\": \"2024-05-01T10:30:00\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/dcu/readings",
+              "host": ["{{baseUrl}}"],
+              "path": ["dcu", "readings"]
+            },
+            "description": "Single reading push from DCU device.\n\n`meter_number` must match a registered meter in the system.\n`recorded_at` is optional — defaults to server time if not provided.\n\nNo auth required."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"status\": \"accepted\",\n  \"readingId\": 1042,\n  \"meterNumber\": \"MTR-001\",\n  \"recordedAt\": \"2024-05-01T10:30:00\"\n}"
+            },
+            {
+              "name": "400 Unknown Meter",
+              "status": "Bad Request",
+              "code": 400,
+              "body": "{\n  \"timestamp\": \"2024-05-01T10:30:00\",\n  \"status\": 400,\n  \"message\": \"Meter not registered: MTR-999\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Push Batch Readings",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"meter_number\": \"MTR-001\",\n    \"kwh_value\": 1234.5678,\n    \"instant_power_watts\": 450.0,\n    \"recorded_at\": \"2024-05-01T10:15:00\"\n  },\n  {\n    \"meter_number\": \"MTR-002\",\n    \"kwh_value\": 876.1200,\n    \"instant_power_watts\": 320.0,\n    \"recorded_at\": \"2024-05-01T10:15:00\"\n  },\n  {\n    \"meter_number\": \"MTR-003\",\n    \"kwh_value\": 542.0000,\n    \"instant_power_watts\": 180.5,\n    \"recorded_at\": \"2024-05-01T10:15:00\"\n  }\n]"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/dcu/readings/batch",
+              "host": ["{{baseUrl}}"],
+              "path": ["dcu", "readings", "batch"]
+            },
+            "description": "Batch push of multiple readings in a single call.\n\nUseful when the DCU buffers readings locally and flushes them periodically.\nEach reading is processed independently — one failure does not block others.\n\nNo auth required."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"total\": 3,\n  \"accepted\": 3,\n  \"failed\": 0\n}"
+            },
+            {
+              "name": "200 OK (partial failure)",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"total\": 3,\n  \"accepted\": 2,\n  \"failed\": 1\n}"
+            }
+          ]
+        },
+        {
+          "name": "DCU Health Check",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/dcu/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["dcu", "status"]
+            },
+            "description": "Simple connectivity check for the DCU to verify it can reach the server.\n\nNo auth required."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"mode\": \"REST\",\n  \"status\": \"online\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Error Examples",
+      "description": "Sample requests that demonstrate error responses — useful for testing validation and auth.",
+      "item": [
+        {
+          "name": "Login — Wrong Password (401)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"ramesh@example.com\",\n  \"password\": \"wrongpassword\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Expect 401 Unauthorized"
+          }
+        },
+        {
+          "name": "Register — Validation Failure (400)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"\",\n  \"email\": \"not-an-email\",\n  \"password\": \"short\",\n  \"flatNumber\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            },
+            "description": "Expect 400 with field-level validation errors"
+          }
+        },
+        {
+          "name": "Create Meter — No Token (401)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"meterNumber\": \"MTR-099\",\n  \"dcuId\": \"DCU-A1\",\n  \"flatNumber\": \"A-109\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/meters",
+              "host": ["{{baseUrl}}"],
+              "path": ["meters"]
+            },
+            "description": "Expect 401 — no Authorization header"
+          }
+        },
+        {
+          "name": "Create Meter — Resident Token (403)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"meterNumber\": \"MTR-099\",\n  \"dcuId\": \"DCU-A1\",\n  \"flatNumber\": \"A-109\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/meters",
+              "host": ["{{baseUrl}}"],
+              "path": ["meters"]
+            },
+            "description": "Run 'Resident Login' first then hit this.\nExpect 403 Forbidden — resident token cannot access admin endpoints."
+          }
+        },
+        {
+          "name": "Push Reading — Unknown Meter (400)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"meter_number\": \"MTR-999\",\n  \"kwh_value\": 100.00,\n  \"recorded_at\": \"2024-05-01T10:30:00\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/dcu/readings",
+              "host": ["{{baseUrl}}"],
+              "path": ["dcu", "readings"]
+            },
+            "description": "Expect 400 — MTR-999 is not registered in the system"
+          }
+        }
+      ]
+    }
+  ]
+}

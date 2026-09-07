@@ -1,0 +1,124 @@
+.admin-page {
+  padding: 40px 0 80px;
+}
+
+.admin-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 32px;
+  gap: 16px;
+}
+
+.admin-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.admin-content {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 20px;
+  align-items: start;
+}
+
+.admin-table-section { min-width: 0; }
+
+.row-selected { background: var(--color-accent-light) !important; }
+
+/* Detail panel */
+.meter-detail {
+  position: sticky;
+  top: 72px;
+}
+
+.meter-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.detail-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.detail-daily {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.detail-day-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+}
+
+.detail-day-row:hover { background: var(--color-surface-2); }
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 24px;
+}
+
+.modal {
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.modal-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 4px;
+}
+
+@media (max-width: 1000px) {
+  .admin-content { grid-template-columns: 1fr; }
+  .meter-detail { position: static; }
+}
+
+@media (max-width: 760px) {
+  .admin-stats { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 480px) {
+  .admin-stats { grid-template-columns: 1fr; }
+  .admin-header { flex-direction: column; }
+  .modal-row { grid-template-columns: 1fr; }
+}
