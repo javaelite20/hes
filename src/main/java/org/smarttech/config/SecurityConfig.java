@@ -44,7 +44,8 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/auth/login").permitAll()    // login is public
+                        .requestMatchers("/actuator/health").permitAll()       // Render health checks
+                        .requestMatchers("/api/v1/auth/login").permitAll()     // login is public
                         .requestMatchers("/api/v1/dcu/**").permitAll()         // DCU device push
                         .anyRequest().authenticated()                          // everything else needs JWT
                 )
