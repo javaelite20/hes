@@ -206,7 +206,7 @@ Click **Deploy**. Vercel builds and deploys in ~1-2 minutes.
 
 Your frontend URL will be:
 ```
-https://hes.vercel.app
+https://hes-nine.vercel.app
 ```
 or a custom domain you configure.
 
@@ -216,7 +216,7 @@ Now that you have the Vercel URL, go back to Render → your service → **Envir
 
 Update:
 ```
-CORS_ALLOWED_ORIGINS = https://hes.vercel.app
+CORS_ALLOWED_ORIGINS = https://hes-nine.vercel.app
 ```
 
 Click **Save Changes** — Render will automatically redeploy with the new value.
@@ -245,7 +245,7 @@ Expected response:
 
 ### Test full flow via UI
 
-1. Open `https://hes.vercel.app`
+1. Open `https://hes-nine.vercel.app`
 2. Sign in: `admin@society.com` / `admin123`
 3. You should see the Admin Dashboard
 
@@ -278,7 +278,7 @@ Every push to `main` → Vercel detects changes in `smart-monitoring-ui/` → re
 | `DB_PASSWORD` | Neon DB password | `xxxxxxxxxxxx` |
 | `JWT_SECRET` | Base64 JWT signing key | `aGVsbG8gd29ybGQ=...` |
 | `DCU_INTEGRATION_MODE` | `REST` or `MQTT` | `REST` |
-| `CORS_ALLOWED_ORIGINS` | Vercel frontend URL | `https://hes.vercel.app` |
+| `CORS_ALLOWED_ORIGINS` | Vercel frontend URL | `https://hes-nine.vercel.app` |
 | `RETENTION_RAW_READINGS_DAYS` | Optional, default 90 | `90` |
 | `RETENTION_DAILY_CONSUMPTION_DAYS` | Optional, default 1095 | `1095` |
 
@@ -332,7 +332,7 @@ If React Router routes return 404 on direct URL access, add this file:
 
 | Service | URL |
 |---|---|
-| Frontend | `https://hes.vercel.app` |
+| Frontend | `https://hes-nine.vercel.app` |
 | Backend | `https://smartmonitoring-backend.onrender.com` |
 | Health check | `https://smartmonitoring-backend.onrender.com/actuator/health` |
 | Neon console | `https://console.neon.tech` |
