@@ -1,23 +1,25 @@
 server:
-  port: 8080
+  port: ${PORT:8080}   # Render injects PORT at runtime
 
 spring:
   application:
     name: SmartMonitoring
 
   datasource:
-    url: jdbc:postgresql://localhost:5433/smart_monitoring
+    # Neon connection — set DB_HOST, DB_NAME, DB_USERNAME, DB_PASSWORD on Render.
+    # Neon requires SSL — sslmode=require is appended automatically.
+    url: jdbc:postgresql://${DB_HOST:localhost:5433}/${DB_NAME:smart_monitoring}?sslmode=${DB_SSL_MODE:disable}
     username: ${DB_USERNAME:postgres}
     password: ${DB_PASSWORD:password}
     driver-class-name: org.postgresql.Driver
     hikari:
       pool-name: SmartMonitoringPool
-      maximum-pool-size: 10        # max concurrent DB connections
-      minimum-idle: 2              # keep 2 warm connections at all times
-      connection-timeout: 20000    # fail fast if no connection in 20s
-      idle-timeout: 300000         # drop idle connections after 5 min
-      max-lifetime: 1200000        # recycle connections after 20 min
-      connection-test-query: SELECT 1  # validate connection before use
+      maximum-pool-size: 5         # Neon free tier allows max 10 connections
+      minimum-idle: 1              # Neon suspends on inactivity — don't hold idle connections
+      connection-timeout: 20000
+      idle-timeout: 300000
+      max-lifetime: 1200000
+      connection-test-query: SELECT 1
 
   jpa:
     hibernate:

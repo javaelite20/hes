@@ -1,7 +1,9 @@
 import axios from 'axios'
 
+// In production (Vercel) VITE_API_BASE_URL points to the Render backend.
+// In local dev it falls back to empty string so Vite proxy handles /api/* calls.
 const client = axios.create({
-  baseURL: '/api/v1',
+  baseURL: `${import.meta.env.VITE_API_BASE_URL || ''}/api/v1`,
   headers: { 'Content-Type': 'application/json' },
 })
 
@@ -13,8 +15,6 @@ client.interceptors.request.use((config) => {
 })
 
 // Redirect to login on 401 — but NOT for auth endpoints themselves.
-// Login/register failures also return 401/400 and should show in-page errors,
-// not trigger a redirect loop.
 client.interceptors.response.use(
   (res) => res,
   (err) => {
