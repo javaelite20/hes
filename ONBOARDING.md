@@ -28,7 +28,7 @@ Liquibase: Running Changeset: 001-create-users-table
 Liquibase: Running Changeset: 002-create-meters-table
 Liquibase: Running Changeset: 003-create-meter-readings-table
 Liquibase: Running Changeset: 004-create-daily-consumption-table
-Liquibase: Running Changeset: 005-alter-users-add-login-id
+Liquibase: Running Changeset: 005-alter-users-email-nullable
 Started SmartMonitoringApplication
 ```
 
@@ -41,13 +41,14 @@ Admin cannot self-register. Insert directly into the database.
 ```sql
 -- Password below is BCrypt hash of "admin123"
 -- Change this before going to production
-INSERT INTO users (login_id, email, password, name, role, flat_number, created_at, updated_at)
+INSERT INTO users (user_id, email, password, name, role, tower_number, flat_number, created_at, updated_at)
 VALUES (
   'admin@society.com',
   'admin@society.com',
   '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhe2',
   'Society Admin',
   'ADMIN',
+  NULL,
   'OFFICE',
   NOW(), NOW()
 );
@@ -76,10 +77,23 @@ Alternatively via API:
 ```bash
 curl -X POST http://localhost:8080/api/v1/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"loginId":"admin@society.com","password":"admin123"}'
+  -d '{"userId":"admin@society.com","password":"admin123"}'
 ```
 
-Save the token from the response — you need it for all admin operations.
+Expected response:
+```json
+{
+  "userId": 1,
+  "token": "eyJ...",
+  "loginId": "admin@society.com",
+  "name": "Society Admin",
+  "role": "ADMIN",
+  "towerNumber": null,
+  "flatNumber": "OFFICE"
+}
+```
+
+Save the `token` from the response — you need it for all admin operations.
 
 ---
 
@@ -119,21 +133,22 @@ Repeat this for every flat/unit in the society.
 Admin creates the resident account. The `loginId` is auto-derived as `towerNumber_flatNumber`.
 
 ```bash
-POST /api/v1/auth/register
-Authorization: Bearer <admin-token>
-
-{
-  "name": "Ramesh Kumar",
-  "towerNumber": "01",
-  "flatNumber": "A-101",
-  "password": "welcome123",
-  "phoneNumber": "9876543210"
-}
+curl -X POST http://localhost:8080/api/v1/auth/register \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <admin-token>" \
+  -d '{
+    "name": "Ramesh Kumar",
+    "towerNumber": "01",
+    "flatNumber": "A-101",
+    "password": "welcome123",
+    "phoneNumber": "9876543210"
+  }'
 ```
 
 **Response:**
 ```json
 {
+  "userId": 2,
   "token": "eyJ...",
   "loginId": "01_A-101",
   "name": "Ramesh Kumar",
@@ -145,8 +160,8 @@ Authorization: Bearer <admin-token>
 
 The resident's login credentials are:
 ```
-Login ID : 01_A-101
-Password : welcome123   (set by admin, share with resident)
+Login ID : 01_A-101          (towerNumber_flatNumber, auto-derived)
+Password : welcome123        (set by admin, share with resident)
 ```
 
 ---

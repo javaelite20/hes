@@ -81,9 +81,9 @@ public class AuthService {
 
     private AuthResponse toAuthResponse(User user, String token) {
         return AuthResponse.builder()
-                .userId(user.getId())
+                .id(user.getId())
                 .token(token)
-                .loginId(user.getUserId())
+                .userId(user.getUserId())
                 .name(user.getName())
                 .role(user.getRole().name())
                 .towerNumber(user.getTowerNumber())

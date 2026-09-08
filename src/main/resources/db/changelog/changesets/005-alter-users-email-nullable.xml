@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
+
+    <changeSet id="005-alter-users-email-nullable" author="smartmonitoring">
+
+        <!--
+            Originally the email column was created NOT NULL (from changeset 001).
+            Email is only meaningful for admins — residents log in with towerNumber_flatNumber
+            and may not have an email at all.
+            This changeset drops the NOT NULL constraint to make email truly optional.
+        -->
+        <dropNotNullConstraint
+                tableName="users"
+                columnName="email"
+                columnDataType="VARCHAR(255)"/>
+
+    </changeSet>
+
+</databaseChangeLog>

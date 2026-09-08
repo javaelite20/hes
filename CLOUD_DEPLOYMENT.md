@@ -555,13 +555,14 @@ Open `https://app.yourdomain.com` — you should see the login page.
 
 Connect to RDS via a bastion host or RDS Query Editor:
 ```sql
-INSERT INTO users (login_id, email, password, name, role, flat_number, created_at, updated_at)
+INSERT INTO users (user_id, email, password, name, role, tower_number, flat_number, created_at, updated_at)
 VALUES (
   'admin@society.com',
   'admin@society.com',
   '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhe2',
   'Society Admin',
   'ADMIN',
+  NULL,
   'OFFICE',
   NOW(), NOW()
 );

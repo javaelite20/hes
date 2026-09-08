@@ -161,12 +161,14 @@ users ──────────────── meters ──────
 | Column | Type | Notes |
 |---|---|---|
 | id | BIGSERIAL | PK |
-| email | VARCHAR(255) | Unique, used as login identifier |
+| user_id | VARCHAR(100) | Unique login identifier — residents: `towerNumber_flatNumber` (e.g. `01_A-101`), admins: email address |
 | password | VARCHAR(255) | BCrypt hashed |
 | name | VARCHAR(255) | Full name |
 | phone_number | VARCHAR(20) | Optional |
 | role | VARCHAR(20) | `RESIDENT` or `ADMIN` |
-| flat_number | VARCHAR(50) | e.g. `A-101` |
+| tower_number | VARCHAR(50) | Tower/block identifier for residents (e.g. `01`, `A`) |
+| flat_number | VARCHAR(50) | Flat or unit identifier |
+| email | VARCHAR(255) | Contact email — required for admins, optional for residents |
 | created_at | TIMESTAMP | Auto-set on insert |
 | updated_at | TIMESTAMP | Auto-set on insert/update |
 
@@ -280,11 +282,13 @@ All user-facing APIs (except `/api/v1/auth/**` and `/api/v1/dcu/**`) require a J
 **JWT claims:**
 ```json
 {
-  "sub": "user@example.com",
+  "sub": "01_A-101",
   "iat": 1714560000,
   "exp": 1714646400
 }
 ```
+
+> The `sub` claim contains the `user_id` value — `towerNumber_flatNumber` for residents, email address for admins.
 
 Algorithm: HS256  
 Expiry: 24 hours (configurable via `app.jwt.expiration-ms`)  
@@ -362,38 +366,40 @@ Aggregates raw `meter_readings` into `daily_consumption` records.
 
 Register a new resident user.
 
-**Access:** Public
+**Access:** Public (admin token required to create admin users)
 
 **Request:**
 ```json
 {
   "name": "Ramesh Kumar",
-  "email": "ramesh@example.com",
+  "towerNumber": "01",
+  "flatNumber": "A-101",
   "password": "secret123",
-  "phoneNumber": "9876543210",
-  "flatNumber": "A-101"
+  "phoneNumber": "9876543210"
 }
 ```
 
 | Field | Type | Required | Validation |
 |---|---|---|---|
 | name | String | Yes | Non-blank |
-| email | String | Yes | Valid email format |
+| towerNumber | String | Yes | Non-blank (used to derive `user_id`) |
+| flatNumber | String | Yes | Non-blank (used to derive `user_id`) |
 | password | String | Yes | Minimum 8 characters |
 | phoneNumber | String | No | — |
-| flatNumber | String | Yes | Non-blank |
 
 **Response `200 OK`:**
 ```json
 {
   "token": "eyJhbGciOiJIUzI1NiJ9...",
-  "email": "ramesh@example.com",
+  "loginId": "01_A-101",
   "name": "Ramesh Kumar",
-  "role": "RESIDENT"
+  "role": "RESIDENT",
+  "towerNumber": "01",
+  "flatNumber": "A-101"
 }
 ```
 
-**Error `400`:** Email already registered or validation failure.
+**Error `400`:** Login ID already registered or validation failure.
 
 ---
 
@@ -406,18 +412,22 @@ Authenticate and receive a JWT.
 **Request:**
 ```json
 {
-  "email": "ramesh@example.com",
+  "loginId": "01_A-101",
   "password": "secret123"
 }
 ```
+
+> For admins, `loginId` is their email address (e.g. `admin@society.com`).
 
 **Response `200 OK`:**
 ```json
 {
   "token": "eyJhbGciOiJIUzI1NiJ9...",
-  "email": "ramesh@example.com",
+  "loginId": "01_A-101",
   "name": "Ramesh Kumar",
-  "role": "RESIDENT"
+  "role": "RESIDENT",
+  "towerNumber": "01",
+  "flatNumber": "A-101"
 }
 ```
 
@@ -807,12 +817,14 @@ Liquibase will automatically create all tables on first run.
 **3. Create an admin user directly in DB** (no admin self-registration endpoint by design):
 ```sql
 -- Password below is BCrypt hash of "admin123"
-INSERT INTO users (email, password, name, role, flat_number, created_at, updated_at)
+INSERT INTO users (user_id, email, password, name, role, tower_number, flat_number, created_at, updated_at)
 VALUES (
+  'admin@society.com',
   'admin@society.com',
   '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhe2',
   'Society Admin',
   'ADMIN',
+  NULL,
   'OFFICE',
   NOW(), NOW()
 );

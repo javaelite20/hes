@@ -149,13 +149,14 @@ Use Neon's SQL editor to insert the admin user.
 
 Go to **Neon Console → SQL Editor** and run:
 ```sql
-INSERT INTO users (login_id, email, password, name, role, flat_number, created_at, updated_at)
+INSERT INTO users (user_id, email, password, name, role, tower_number, flat_number, created_at, updated_at)
 VALUES (
   'admin@society.com',
   'admin@society.com',
   '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhe2',
   'Society Admin',
   'ADMIN',
+  NULL,
   'OFFICE',
   NOW(), NOW()
 );
@@ -230,16 +231,19 @@ Click **Save Changes** — Render will automatically redeploy with the new value
 ```bash
 curl -X POST https://smartmonitoring-backend.onrender.com/api/v1/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"loginId":"admin@society.com","password":"admin123"}'
+  -d '{"userId":"admin@society.com","password":"admin123"}'
 ```
 
 Expected response:
 ```json
 {
+  "userId": 1,
   "token": "eyJ...",
   "loginId": "admin@society.com",
   "name": "Society Admin",
-  "role": "ADMIN"
+  "role": "ADMIN",
+  "towerNumber": null,
+  "flatNumber": "OFFICE"
 }
 ```
 
