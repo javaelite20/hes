@@ -46,7 +46,7 @@ public class MeterController {
      */
     @PatchMapping("/{meterId}/assign/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<MeterDto> assignMeter(@PathVariable Long meterId, @PathVariable Long userId) {
+    public ResponseEntity<MeterDto> assignMeter(@PathVariable Long meterId, @PathVariable String userId) {
         return ResponseEntity.ok(meterService.assignMeterToUser(meterId, userId));
     }
 
@@ -56,13 +56,13 @@ public class MeterController {
     @GetMapping("/my")
     @PreAuthorize("hasRole('RESIDENT')")
     public ResponseEntity<MeterDto> getMyMeter(@AuthenticationPrincipal UserDetails userDetails) {
-        Long userId = resolveUserId(userDetails);
+        String userId = resolveUserId(userDetails);
         return ResponseEntity.ok(meterService.getMeterByUserId(userId));
     }
 
-    private Long resolveUserId(UserDetails userDetails) {
+    private String resolveUserId(UserDetails userDetails) {
         return userRepository.findByUserId(userDetails.getUsername())
                 .orElseThrow(() -> new IllegalArgumentException("User not found"))
-                .getId();
+                .getUserId();
     }
 }

@@ -16,5 +16,5 @@ public class CreateMeterRequest {
     private String flatNumber;
 
     // Optional — meter can be created before assigning to a user
-    private Long userId;
+    private String userId;
 }

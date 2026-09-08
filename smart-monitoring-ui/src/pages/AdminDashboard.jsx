@@ -308,10 +308,10 @@ export default function AdminDashboard() {
                   Share these login credentials with the resident:
                 </p>
                 <div className="credentials-box">
-                  <div className="credential-row">
+                  {/* <div className="credential-row">
                     <span className="form-label">Login ID</span>
                     <span className="font-semibold">{residentSuccess.loginId}</span>
-                  </div>
+                  </div> */}
                   <div className="credential-row">
                     <span className="form-label">Password</span>
                     <span className="font-semibold">{residentSuccess.password}</span>

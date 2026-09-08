@@ -32,7 +32,7 @@ public class AnalyticsController {
     @PreAuthorize("hasRole('RESIDENT')")
     public ResponseEntity<RealTimeReadingDto> getMyRealTimeReading(
             @AuthenticationPrincipal UserDetails userDetails) {
-        Long userId = resolveUserId(userDetails);
+        String userId = resolveUserId(userDetails);
         return ResponseEntity.ok(analyticsService.getRealTimeReading(userId));
     }
 
@@ -50,7 +50,7 @@ public class AnalyticsController {
         LocalDate end = to != null ? to : LocalDate.now();
         LocalDate start = from != null ? from : end.minusDays(6);   // last 7 days default
 
-        Long userId = resolveUserId(userDetails);
+        String userId = resolveUserId(userDetails);
         return ResponseEntity.ok(analyticsService.getDailyConsumption(userId, start, end));
     }
 
@@ -62,7 +62,7 @@ public class AnalyticsController {
     @PreAuthorize("hasRole('RESIDENT')")
     public ResponseEntity<ConsumptionSummaryDto> getMyWeeklyConsumption(
             @AuthenticationPrincipal UserDetails userDetails) {
-        Long userId = resolveUserId(userDetails);
+        String userId = resolveUserId(userDetails);
         LocalDate to = LocalDate.now();
         LocalDate from = to.minusDays(6);
         return ResponseEntity.ok(analyticsService.getDailyConsumption(userId, from, to));
@@ -99,9 +99,9 @@ public class AnalyticsController {
 
     // ── helper ────────────────────────────────────────────────────────────────
 
-    private Long resolveUserId(UserDetails userDetails) {
+    private String resolveUserId(UserDetails userDetails) {
         return userRepository.findByUserId(userDetails.getUsername())
                 .orElseThrow(() -> new IllegalArgumentException("User not found"))
-                .getId();
+                .getUserId();
     }
 }

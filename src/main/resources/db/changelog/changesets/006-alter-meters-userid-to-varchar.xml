@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
+
+    <changeSet id="006-alter-meters-userid-to-varchar" author="smartmonitoring">
+
+        <!--
+            meters.user_id was originally a BIGINT FK referencing users.id (the surrogate PK).
+            The system now identifies users by their login string (users.user_id VARCHAR),
+            so the FK must be re-pointed to users.user_id instead.
+
+            Steps:
+              1. Drop the old FK constraint and index
+              2. Change column type BIGINT → VARCHAR(100)
+              3. Re-create the FK referencing users.user_id
+              4. Re-create the index
+        -->
+
+        <!-- 1a. Drop the old FK -->
+        <dropForeignKeyConstraint
+                baseTableName="meters"
+                constraintName="fk_meters_user"/>
+
+        <!-- 1b. Drop the old index -->
+        <dropIndex tableName="meters" indexName="idx_meters_user_id"/>
+
+        <!-- 2. Change column type -->
+        <modifyDataType
+                tableName="meters"
+                columnName="user_id"
+                newDataType="VARCHAR(100)"/>
+
+        <!-- 3. Re-create FK → users.user_id (the VARCHAR login identifier) -->
+        <addForeignKeyConstraint
+                baseTableName="meters"
+                baseColumnNames="user_id"
+                constraintName="fk_meters_user"
+                referencedTableName="users"
+                referencedColumnNames="user_id"
+                onDelete="SET NULL"/>
+
+        <!-- 4. Re-create the lookup index -->
+        <createIndex tableName="meters" indexName="idx_meters_user_id">
+            <column name="user_id"/>
+        </createIndex>
+
+    </changeSet>
+
+</databaseChangeLog>

@@ -39,7 +39,7 @@ public class MeterService {
                 .build();
 
         if (request.getUserId() != null) {
-            User user = userRepository.findById(request.getUserId())
+            User user = userRepository.findByUserId(request.getUserId())
                     .orElseThrow(() -> new IllegalArgumentException("User not found: " + request.getUserId()));
             meter.setUser(user);
         }
@@ -61,8 +61,8 @@ public class MeterService {
      * Resident: get their own meter.
      */
     @Transactional(readOnly = true)
-    public MeterDto getMeterByUserId(Long userId) {
-        Meter meter = meterRepository.findByUserId(userId)
+    public MeterDto getMeterByUserId(String userId) {
+        Meter meter = meterRepository.findByUserUserId(userId)
                 .orElseThrow(() -> new IllegalArgumentException("No meter assigned to user: " + userId));
         return toDto(meter);
     }
@@ -71,10 +71,10 @@ public class MeterService {
      * Admin: assign a meter to a user.
      */
     @Transactional
-    public MeterDto assignMeterToUser(Long meterId, Long userId) {
+    public MeterDto assignMeterToUser(Long meterId, String userId) {
         Meter meter = meterRepository.findById(meterId)
                 .orElseThrow(() -> new IllegalArgumentException("Meter not found: " + meterId));
-        User user = userRepository.findById(userId)
+        User user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
 
         meter.setUser(user);
@@ -88,7 +88,7 @@ public class MeterService {
                 .dcuId(meter.getDcuId())
                 .flatNumber(meter.getFlatNumber())
                 .status(meter.getStatus())
-                .userId(meter.getUser() != null ? meter.getUser().getId() : null)
+                .userId(meter.getUser() != null ? meter.getUser().getUserId() : null)
                 .userName(meter.getUser() != null ? meter.getUser().getName() : null)
                 .installedAt(meter.getInstalledAt())
                 .build();

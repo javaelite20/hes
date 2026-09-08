@@ -14,7 +14,7 @@ public class MeterDto {
     private String dcuId;
     private String flatNumber;
     private MeterStatus status;
-    private Long userId;
+    private String userId;
     private String userName;
     private LocalDateTime installedAt;
 }

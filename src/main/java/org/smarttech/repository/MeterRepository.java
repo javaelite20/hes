@@ -12,7 +12,7 @@ public interface MeterRepository extends JpaRepository<Meter, Long> {
 
     Optional<Meter> findByMeterNumber(String meterNumber);
 
-    Optional<Meter> findByUserId(Long userId);
+    Optional<Meter> findByUserUserId(String userId);
 
     List<Meter> findAllByDcuId(String dcuId);
 

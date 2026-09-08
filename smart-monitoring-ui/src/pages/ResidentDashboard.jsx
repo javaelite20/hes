@@ -53,7 +53,7 @@ export default function ResidentDashboard() {
       setSummary(s)
     } catch (err) {
       if (err.response?.status === 400) {
-        setError('No meter assigned to your account yet. Please contact your society admin.')
+        setError(err.response.data.message)
       } else {
         setError('Failed to load data. Please try again.')
       }

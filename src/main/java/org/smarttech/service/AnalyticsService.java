@@ -29,7 +29,7 @@ public class AnalyticsService {
      * Returns the most recent reading for the meter owned by the given user.
      */
     @Transactional(readOnly = true)
-    public RealTimeReadingDto getRealTimeReading(Long userId) {
+    public RealTimeReadingDto getRealTimeReading(String userId) {
         Meter meter = getMeterfByUserId(userId);
         return getRealTimeReadingForMeter(meter);
     }
@@ -48,7 +48,7 @@ public class AnalyticsService {
      * Daily consumption for the last N days for the resident's meter.
      */
     @Transactional(readOnly = true)
-    public ConsumptionSummaryDto getDailyConsumption(Long userId, LocalDate from, LocalDate to) {
+    public ConsumptionSummaryDto getDailyConsumption(String userId, LocalDate from, LocalDate to) {
         Meter meter = getMeterfByUserId(userId);
         return buildSummary(meter, from, to);
     }
@@ -105,8 +105,8 @@ public class AnalyticsService {
                 .build();
     }
 
-    private Meter getMeterfByUserId(Long userId) {
-        return meterRepository.findByUserId(userId)
+    private Meter getMeterfByUserId(String userId) {
+        return meterRepository.findByUserUserId(userId)
                 .orElseThrow(() -> new IllegalArgumentException("No meter assigned to user: " + userId));
     }
 }

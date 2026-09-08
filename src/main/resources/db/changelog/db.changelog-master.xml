@@ -11,5 +11,6 @@
     <include file="db/changelog/changesets/003-create-meter-readings-table.xml"/>
     <include file="db/changelog/changesets/004-create-daily-consumption-table.xml"/>
     <include file="db/changelog/changesets/005-alter-users-email-nullable.xml"/>
+    <include file="db/changelog/changesets/006-alter-meters-userid-to-varchar.xml"/>
 
 </databaseChangeLog>
