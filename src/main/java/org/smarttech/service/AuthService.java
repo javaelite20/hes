@@ -32,12 +32,12 @@ public class AuthService {
     public AuthResponse register(RegisterRequest request) {
         String loginId = buildLoginId(request.getTowerNumber(), request.getFlatNumber());
 
-        if (userRepository.existsByLoginId(loginId)) {
+        if (userRepository.existsByUserId(loginId)) {
             throw new IllegalArgumentException("Resident already registered: " + loginId);
         }
 
         User user = User.builder()
-                .loginId(loginId)
+                .userId(loginId)
                 .name(request.getName())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
@@ -57,13 +57,13 @@ public class AuthService {
 
     public AuthResponse login(LoginRequest request) {
         authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getLoginId(), request.getPassword())
+                new UsernamePasswordAuthenticationToken(request.getUserId(), request.getPassword())
         );
 
-        User user = userRepository.findByLoginId(request.getLoginId())
+        User user = userRepository.findByUserId(request.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        UserDetails userDetails = userDetailsService.loadUserByUsername(user.getLoginId());
+        UserDetails userDetails = userDetailsService.loadUserByUsername(user.getUserId());
         String token = jwtService.generateToken(userDetails);
 
         return toAuthResponse(user, token);
@@ -83,7 +83,7 @@ public class AuthService {
         return AuthResponse.builder()
                 .userId(user.getId())
                 .token(token)
-                .loginId(user.getLoginId())
+                .loginId(user.getUserId())
                 .name(user.getName())
                 .role(user.getRole().name())
                 .towerNumber(user.getTowerNumber())

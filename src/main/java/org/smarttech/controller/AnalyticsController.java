@@ -100,7 +100,7 @@ public class AnalyticsController {
     // ── helper ────────────────────────────────────────────────────────────────
 
     private Long resolveUserId(UserDetails userDetails) {
-        return userRepository.findByLoginId(userDetails.getUsername())
+        return userRepository.findByUserId(userDetails.getUsername())
                 .orElseThrow(() -> new IllegalArgumentException("User not found"))
                 .getId();
     }

@@ -22,9 +22,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
      */
     @Override
     public UserDetails loadUserByUsername(String loginId) throws UsernameNotFoundException {
-        return userRepository.findByLoginId(loginId)
+        return userRepository.findByUserId(loginId)
                 .map(user -> User.builder()
-                        .username(user.getLoginId())
+                        .username(user.getUserId())
                         .password(user.getPassword())
                         .roles(user.getRole().name())
                         .build())
