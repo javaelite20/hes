@@ -13,8 +13,12 @@
                 <constraints primaryKey="true" primaryKeyName="pk_users" nullable="false"/>
             </column>
 
-            <column name="email" type="VARCHAR(255)" remarks="Unique login email">
-                <constraints nullable="false" unique="true" uniqueConstraintName="uq_users_email"/>
+            <!-- Unique login identifier.
+                 Residents : towerNumber_flatNumber  (e.g. "01_A-101")
+                 Admins    : email address           (e.g. "admin@society.com") -->
+            <column name="user_id" type="VARCHAR(100)"
+                    remarks="Unique login identifier">
+                <constraints nullable="false" unique="true" uniqueConstraintName="uq_users_userid"/>
             </column>
 
             <column name="password" type="VARCHAR(255)" remarks="BCrypt hashed password">
@@ -31,7 +35,14 @@
                 <constraints nullable="false"/>
             </column>
 
-            <column name="flat_number" type="VARCHAR(50)" remarks="Flat or unit identifier in the society"/>
+            <column name="tower_number" type="VARCHAR(50)"
+                    remarks="Tower/block identifier for residents (e.g. 01, A, B)"/>
+
+            <column name="flat_number" type="VARCHAR(50)"
+                    remarks="Flat or unit identifier in the society"/>
+
+            <!-- Email retained for admins; optional for residents -->
+            <column name="email" type="VARCHAR(255)" remarks="Contact email (optional for residents)"/>
 
             <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE" defaultValueComputed="NOW()">
                 <constraints nullable="false"/>
@@ -40,18 +51,10 @@
             <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE" defaultValueComputed="NOW()">
                 <constraints nullable="false"/>
             </column>
-            <column name="user_id" type="VARCHAR(100)"
-                        remarks="Unique login identifier. Residents: towerNumber_flatNumber. Admins: email.">
-                <constraints nullable="false" unique="true" uniqueConstraintName="uq_users_userid"/>
-            </column>
-
-            <column name="tower_number" type="VARCHAR(50)"
-                    remarks="Tower/block identifier for residents (e.g. 01, A, B)">
-            </column>
 
         </createTable>
 
-        <!-- Index on email for fast lookup during login -->
+        <!-- Index on user_id for fast auth lookups -->
         <createIndex tableName="users" indexName="idx_users_userid">
             <column name="user_id"/>
         </createIndex>
