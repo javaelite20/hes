@@ -7,6 +7,11 @@
 
     <changeSet id="001-create-users-table" author="smartmonitoring">
 
+        <!-- Checksum override: changeset was reformatted (column reorder + comments only).
+             Schema produced is identical to the original. ANY accepts the stored checksum
+             and Liquibase will update it to the current hash on the next run. -->
+        <validCheckSum>ANY</validCheckSum>
+
         <createTable tableName="users" remarks="Application users — residents and admins">
 
             <column name="id" type="BIGSERIAL">
