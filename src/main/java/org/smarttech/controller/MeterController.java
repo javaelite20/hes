@@ -61,7 +61,7 @@ public class MeterController {
     }
 
     private Long resolveUserId(UserDetails userDetails) {
-        return userRepository.findByEmail(userDetails.getUsername())
+        return userRepository.findByLoginId(userDetails.getUsername())
                 .orElseThrow(() -> new IllegalArgumentException("User not found"))
                 .getId();
     }
