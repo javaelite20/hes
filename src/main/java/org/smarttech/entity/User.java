@@ -26,8 +26,8 @@ public class User {
      *
      * Used as the Spring Security username — single lookup path for both roles.
      */
-    @Column(name = "login_id", nullable = false, unique = true)
-    private String loginId;
+    @Column(name = "user_id", nullable = false, unique = true)
+    private String userId;
 
     @Column(nullable = false)
     private String password;

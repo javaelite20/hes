@@ -10,6 +10,5 @@
     <include file="db/changelog/changesets/002-create-meters-table.xml"/>
     <include file="db/changelog/changesets/003-create-meter-readings-table.xml"/>
     <include file="db/changelog/changesets/004-create-daily-consumption-table.xml"/>
-    <include file="db/changelog/changesets/005-alter-users-add-login-id.xml"/>
 
 </databaseChangeLog>

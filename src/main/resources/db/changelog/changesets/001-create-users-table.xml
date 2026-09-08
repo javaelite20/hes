@@ -40,12 +40,20 @@
             <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE" defaultValueComputed="NOW()">
                 <constraints nullable="false"/>
             </column>
+            <column name="user_id" type="VARCHAR(100)"
+                        remarks="Unique login identifier. Residents: towerNumber_flatNumber. Admins: email.">
+                <constraints nullable="false" unique="true" uniqueConstraintName="uq_users_userid"/>
+            </column>
+
+            <column name="tower_number" type="VARCHAR(50)"
+                    remarks="Tower/block identifier for residents (e.g. 01, A, B)">
+            </column>
 
         </createTable>
 
         <!-- Index on email for fast lookup during login -->
-        <createIndex tableName="users" indexName="idx_users_email">
-            <column name="email"/>
+        <createIndex tableName="users" indexName="idx_users_userid">
+            <column name="user_id"/>
         </createIndex>
 
         <!-- Enforce role values at DB level -->
