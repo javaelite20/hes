@@ -10,4 +10,4 @@ export const createMeter = (data) =>
   client.post('/meters', data).then((r) => r.data)
 
 export const assignMeter = (meterId, userId) =>
-  client.patch(`/meters/${meterId}/assign/${userId}`).then((r) => r.data)
+  client.patch(`/meters/${meterId}/assign-by-login/${userId}`).then((r) => r.data)

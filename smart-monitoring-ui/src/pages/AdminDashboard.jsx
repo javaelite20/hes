@@ -110,11 +110,11 @@ export default function AdminDashboard() {
 
   // ── Assign meter ───────────────────────────────────────────────────────────
   const handleAssign = async () => {
-    if (!assignUserId) return
+    if (!assignUserId.trim()) return
     setAssigning(true)
     setAssignError('')
     try {
-      await assignMeter(assignModal.meterId, parseInt(assignUserId))
+      await assignMeter(assignModal.meterId, assignUserId.trim())
       setAssignModal(null)
       setAssignUserId('')
       loadMeters()
@@ -467,13 +467,14 @@ export default function AdminDashboard() {
               <button className="btn btn-ghost btn-sm" onClick={() => setAssignModal(null)}>✕</button>
             </div>
             <p className="text-secondary text-sm" style={{ marginBottom: 16 }}>
-              Flat <strong>{assignModal.flatNumber}</strong> — enter the User ID shown after registering the resident.
+              Flat <strong>{assignModal.flatNumber}</strong> — enter the resident's User ID (e.g. <code>01_A-101</code>).
             </p>
             <div className="form-group" style={{ marginBottom: 8 }}>
               <label className="form-label">User ID</label>
               <input
                 className="form-input"
-                type="number" min="1" placeholder="e.g. 3"
+                type="text"
+                placeholder="e.g. 01_A-101"
                 value={assignUserId}
                 onChange={(e) => { setAssignUserId(e.target.value); setAssignError('') }}
                 autoFocus
